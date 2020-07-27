@@ -1,0 +1,15 @@
+{
+  "name": "fallback-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mcquery": "^1.0.2",
+    "minecraft-protocol": "^1.13.0"
+  }
+}
