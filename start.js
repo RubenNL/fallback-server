@@ -1,4 +1,4 @@
-const config = JSON.parse(fs.readFileSync('config.json','utf8'))
+const config = JSON.parse(require('fs').readFileSync('config.json','utf8'))
 const mc = require('minecraft-protocol');
 const Query=require('mcquery');
 const query = new Query(config.normal_server,normal.default_port);
