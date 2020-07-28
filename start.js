@@ -21,7 +21,9 @@ for (var x = 0; x < 16;x++) {
 
 console.log('started!')
 server.on('login', function(client) {
-	client.write('login', {levelType: 'default',hashedSeed: [0, 0]});
+	client.slots={}
+	client.slot=36;
+	client.write('login', {levelType: 'default',gameMode:1,hashedSeed: [0, 0]});
 	client.write('position', {x: 0,y: 101,z: 0,yaw: 0,pitch: 0,flags: 0x00});
 	sendToClients({
 		translate: 'chat.type.announcement',
@@ -39,12 +41,35 @@ server.on('login', function(client) {
 		chunkData: chunk.dump(),
 		blockEntities: []
 	});
-	client.on('packet',packet=>console.log(packet))
-});
-function sendToClients(message) {
-	Object.values(server.clients).forEach(toClient=>{
-		toClient.write("chat",{message:JSON.stringify(message),position:0,sender:'0'})
+	client.on('packet',(data,meta)=>{
+		if(meta.state!="play") return;
+		if(["flying","look","position","keep_alive","position_look"].includes(meta.name)) return; //stupid amount of spam from this.
+		else if(meta.name=="set_creative_slot") client.slots[parseInt(data.slot)]=data.item.blockId;
+		else if(meta.name=="held_item_slot") client.slot=data.slotId+36
+		else if(meta.name=="block_place") {
+			loc=data.location;
+			dir=data.direction;
+			if(dir==0) loc.y--;
+			if(dir==1) loc.y++;
+			if(dir==2) loc.z--;
+			if(dir==3) loc.z++;
+			if(dir==4) loc.x--;
+			if(dir==5) loc.x++;
+			broadcastPacket("block_change",{
+				location:new Vec3(loc.x,loc.y,loc.z),
+				type: (client.slots[client.slot] << 4) | 0
+			})
+		} else console.log(meta.name,data)
 	})
+});
+function broadcastPacket(name,data) {
+	console.log(name,data);
+	Object.values(server.clients).forEach(toClient=>{
+		toClient.write(name,data)
+	})
+}
+function sendToClients(message) {
+	broadcastPacket('chat',{message:JSON.stringify(message),position:0,sender:'0'})
 }
 setInterval(function () {
 	query.connect().then(()=>sendToClients({translate:'chat.type.announcement',with:['Server','normal server seems to be online, no need to stay here :)']}))
