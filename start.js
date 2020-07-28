@@ -2,9 +2,11 @@ const config = JSON.parse(require('fs').readFileSync('config.json','utf8'))
 const mc = require('minecraft-protocol');
 const Chunk = require('prismarine-chunk')(config.version);
 const Vec3 = require('vec3');
-const Query=require('mcquery');
+const Query= require('mcquery');
+const fetch = require("node-fetch");
 const query = new Query(config.normal_server,config.default_port);
 const server = mc.createServer({
+	"motd":"Fallback Server",
 	'online-mode': false,
 	port: config.server_port,
 	version: config.version
@@ -21,6 +23,31 @@ for (var x = 0; x < 16;x++) {
 
 console.log('started!')
 server.on('login', function(client) {
+	const addr = client.socket.remoteAddress + ":" + client.socket.remotePort
+	console.log(client.username + " connected", "(" + addr + ")")
+	if(config.webhook) {
+		fetch(config.webhook, {
+		    "headers": {
+			"Content-Type": "application/json"
+		    },
+		    "body": JSON.stringify({"embeds": [{"color": "32768","author": {"name": `${client.username} joined the fallback server`,"icon_url": `https://minotar.net/helm/${client.username}/128`}}]}),
+		    "method": "POST",
+		});
+	}
+
+	client.on("end", function () {
+	    	console.log(client.username + " disconnected", "(" + addr + ")")
+		if(config.webhook) {
+			fetch(config.webhook, {
+			    "headers": {
+				"Content-Type": "application/json"
+			    },
+			    "body": JSON.stringify({"embeds": [{"color": "16711680","author": {"name": `${client.username} joined the fallback server`,"icon_url": `https://minotar.net/helm/${client.username}/128`}}]}),
+			    "method": "POST",
+			});	
+		}
+	})	
+	
 	client.slots={}
 	client.slot=36;
 	client.write('login', {levelType: 'default',gameMode:1,hashedSeed: [0, 0]});
@@ -32,7 +59,19 @@ server.on('login', function(client) {
 			'You have been connected to a fallback server, because the normal server is down. The builds here are NOT saved, and are only visible to players currently online. only placed blocks are sent!'
 		]
 	});
-	client.on('chat',packet=>sendToClients({translate:"chat.type.text",with:[client.username,packet.message]}))
+	client.on('chat',packet=>{
+		sendToClients({translate:"chat.type.text",with:[client.username,packet.message]})
+		if(config.webhook) {
+			let E = `[fallback] ${client.username} » ${packet.message.replace(/@everyone/g,"").replace(/@here/g,"")}`;
+			fetch(config.webhook, {
+			    "headers": {
+				"Content-Type": "application/json"
+			    },
+			    "body": JSON.stringify({content:E}),
+			    "method": "POST",
+			});
+		}
+	})
 	client.write('map_chunk', {
 		x: 0,
 		z: 0,
