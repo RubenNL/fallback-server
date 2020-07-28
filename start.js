@@ -29,7 +29,7 @@ server.on('login', function(client) {
 		translate: 'chat.type.announcement',
 		"with": [
 			'Server',
-			'You have been connected to a fallback chat-only server, because the normal server is down.'
+			'You have been connected to a fallback server, because the normal server is down. The builds here are NOT saved, and are only visible to players currently online. only placed blocks are sent!'
 		]
 	});
 	client.on('chat',packet=>sendToClients({translate:"chat.type.text",with:[client.username,packet.message]}))
