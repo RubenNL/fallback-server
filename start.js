@@ -36,7 +36,7 @@ server.on('login', function(client) {
 	}
 
 	client.on("end", function () {
-	    	console.log(client.username + " disconnected", "(" + addr + ")")
+		console.log(client.username + " disconnected", "(" + addr + ")")
 		if(config.webhook) {
 			fetch(config.webhook, {
 				"headers": {
@@ -46,7 +46,7 @@ server.on('login', function(client) {
 				"method": "POST",
 			});
 		}
-	})	
+	})
 	
 	client.slots={}
 	client.slot=36;
@@ -64,11 +64,11 @@ server.on('login', function(client) {
 		if(config.webhook) {
 			let E = `[fallback] ${client.username} » ${packet.message.replace(/@everyone/g,"").replace(/@here/g,"")}`;
 			fetch(config.webhook, {
-			    "headers": {
-				"Content-Type": "application/json"
-			    },
-			    "body": JSON.stringify({content:E}),
-			    "method": "POST",
+				"headers": {
+					"Content-Type": "application/json"
+				},
+				"body": JSON.stringify({content:E}),
+				"method": "POST",
 			});
 		}
 	})
