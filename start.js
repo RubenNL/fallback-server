@@ -27,11 +27,11 @@ server.on('login', function(client) {
 	console.log(client.username + " connected", "(" + addr + ")")
 	if(config.webhook) {
 		fetch(config.webhook, {
-		    "headers": {
-			"Content-Type": "application/json"
-		    },
-		    "body": JSON.stringify({"embeds": [{"color": "32768","author": {"name": `${client.username} joined the fallback server`,"icon_url": `https://minotar.net/helm/${client.username}/128`}}]}),
-		    "method": "POST",
+			"headers": {
+				"Content-Type": "application/json"
+			},
+			"body": JSON.stringify({"embeds": [{"color": "32768","author": {"name": `${client.username} joined the fallback server`,"icon_url": `https://minotar.net/helm/${client.username}/128`}}]}),
+			"method": "POST",
 		});
 	}
 
@@ -39,12 +39,12 @@ server.on('login', function(client) {
 	    	console.log(client.username + " disconnected", "(" + addr + ")")
 		if(config.webhook) {
 			fetch(config.webhook, {
-			    "headers": {
-				"Content-Type": "application/json"
-			    },
-			    "body": JSON.stringify({"embeds": [{"color": "16711680","author": {"name": `${client.username} joined the fallback server`,"icon_url": `https://minotar.net/helm/${client.username}/128`}}]}),
-			    "method": "POST",
-			});	
+				"headers": {
+					"Content-Type": "application/json"
+				},
+				"body": JSON.stringify({"embeds": [{"color": "16711680","author": {"name": `${client.username} left the fallback server`,"icon_url": `https://minotar.net/helm/${client.username}/128`}}]}),
+				"method": "POST",
+			});
 		}
 	})	
 	
