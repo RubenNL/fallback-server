@@ -5,7 +5,7 @@ let discordChannel,discordGuild;
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 	discordChannel=client.channels.cache.get(config.discordChannel);
-	//discordChannel.send("Fallback server online!");
+	discordChannel.send("Fallback server online!");
 });
 client.on('message',message=>{
 	if(message.channel.id!=config.discordChannel) return
@@ -109,3 +109,4 @@ setInterval(function () {
 	query.connect().then(()=>sendToClients({translate:'chat.type.announcement',with:['Server','normal server seems to be online, no need to stay here :)']}))
 		.catch(err=>sendToClients({translate:'chat.type.announcement',with:['Server','normal server is not online.']}))
 },15000)
+process.on('exit', ()=>discordChannel.send("Fallback server offline."));
