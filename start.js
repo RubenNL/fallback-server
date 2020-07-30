@@ -23,7 +23,6 @@ const mc = require('minecraft-protocol');
 const Chunk = require('prismarine-chunk')(config.version);
 const Vec3 = require('vec3');
 const Query= require('mcquery');
-const fetch = require("node-fetch");
 const query = new Query(config.normal_server,config.default_port);
 const server = mc.createServer({
 	"motd":"Fallback Server",
