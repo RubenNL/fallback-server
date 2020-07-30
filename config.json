@@ -2,5 +2,7 @@
     "normal_host": "localhost",
     "default_port":25566,
     "server_port":25567,
-    "version":"1.8"
+    "version":"1.8",
+    "discordToken":"your-token",
+    "discordChannel":"your-channel"
 }

@@ -1,4 +1,24 @@
 const config = JSON.parse(require('fs').readFileSync('config.json','utf8'))
+const Discord = require('discord.js');
+const client = new Discord.Client();
+let discordChannel,discordGuild;
+client.on('ready', () => {
+	console.log(`Logged in as ${client.user.tag}!`);
+	discordChannel=client.channels.cache.get(config.discordChannel);
+	//discordChannel.send("Fallback server online!");
+});
+client.on('message',message=>{
+	if(message.channel.id!=config.discordChannel) return
+	if(message.author==client.user) return;
+	console.log(message)
+	const displayName=message.guild.member(message.author).displayName
+	sendToClients('[Discord] ['+(displayName?displayName:message.author.username)+'] '+message.content)
+})
+function sendDiscordEmbeded(message,color,img) {
+	discordChannel.send(new Discord.MessageEmbed().setColor(color).setAuthor(message,img));
+}
+
+client.login(config.discordToken);
 const mc = require('minecraft-protocol');
 const Chunk = require('prismarine-chunk')(config.version);
 const Vec3 = require('vec3');
@@ -25,27 +45,11 @@ console.log('started!')
 server.on('login', function(client) {
 	const addr = client.socket.remoteAddress + ":" + client.socket.remotePort
 	console.log(client.username + " connected", "(" + addr + ")")
-	if(config.webhook) {
-		fetch(config.webhook, {
-			"headers": {
-				"Content-Type": "application/json"
-			},
-			"body": JSON.stringify({"embeds": [{"color": "32768","author": {"name": `${client.username} joined the fallback server`,"icon_url": `https://minotar.net/helm/${client.username}/128`}}]}),
-			"method": "POST",
-		});
-	}
+	sendDiscordEmbeded(`${client.username} joined the fallback server`,"#00FF00",`https://minotar.net/helm/${client.username}/128`)
 
 	client.on("end", function () {
 		console.log(client.username + " disconnected", "(" + addr + ")")
-		if(config.webhook) {
-			fetch(config.webhook, {
-				"headers": {
-					"Content-Type": "application/json"
-				},
-				"body": JSON.stringify({"embeds": [{"color": "16711680","author": {"name": `${client.username} left the fallback server`,"icon_url": `https://minotar.net/helm/${client.username}/128`}}]}),
-				"method": "POST",
-			});
-		}
+		sendDiscordEmbeded(`${client.username} left the fallback server`,"#FF0000",`https://minotar.net/helm/${client.username}/128`)
 	})
 	
 	client.slots={}
@@ -61,16 +65,7 @@ server.on('login', function(client) {
 	});
 	client.on('chat',packet=>{
 		sendToClients({translate:"chat.type.text",with:[client.username,packet.message]})
-		if(config.webhook) {
-			let E = `[fallback] ${client.username} » ${packet.message.replace(/@everyone/g,"").replace(/@here/g,"")}`;
-			fetch(config.webhook, {
-				"headers": {
-					"Content-Type": "application/json"
-				},
-				"body": JSON.stringify({content:E}),
-				"method": "POST",
-			});
-		}
+		discordChannel.send(`${client.username} » ${packet.message}`);
 	})
 	client.write('map_chunk', {
 		x: 0,
@@ -81,7 +76,7 @@ server.on('login', function(client) {
 		blockEntities: []
 	});
 	client.on('packet',(data,meta)=>{
-		if(meta.state!="play") return;
+		if(meta.state!="play") console.log(meta,data);
 		if(["flying","look","position","keep_alive","position_look"].includes(meta.name)) return; //stupid amount of spam from this.
 		else if(meta.name=="set_creative_slot") client.slots[parseInt(data.slot)]=data.item.blockId;
 		else if(meta.name=="held_item_slot") client.slot=data.slotId+36
@@ -100,6 +95,7 @@ server.on('login', function(client) {
 			})
 		} else console.log(meta.name,data)
 	})
+	setTimeout(()=>console.log(client.username),1000)
 });
 function broadcastPacket(name,data) {
 	console.log(name,data);
