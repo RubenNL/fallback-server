@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.4.1",
+    "discord.js": "^13.8.0",
     "mcquery": "^1.0.2",
     "minecraft-protocol": "^1.19.0",
     "prismarine-chunk": "^1.20.3"
