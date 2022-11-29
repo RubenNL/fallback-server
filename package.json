@@ -11,7 +11,7 @@
   "dependencies": {
     "discord.js": "^12.4.1",
     "mcquery": "^1.0.2",
-    "minecraft-protocol": "^1.19.0",
+    "minecraft-protocol": "^1.36.2",
     "prismarine-chunk": "^1.20.3"
   }
 }
